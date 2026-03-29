@@ -63,11 +63,13 @@ const Header = ({ onNewTransaction, onNewGoal }) => {
       animate={{ opacity: 1, y: 0 }}
       className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
     >
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-8">
+      <div className="container flex h-14 items-center justify-between gap-2 sm:h-16">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-8">
           <Link to="/" className="flex items-center gap-2">
             <Target className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold gradient-text">FinanceFlow</span>
+            <span className="hidden text-xl font-bold gradient-text min-[370px]:inline">
+              FinanceFlow
+            </span>
           </Link>
           <nav className="hidden md:flex items-center gap-4">
             {mainNavItems.map((item) => (
@@ -106,13 +108,14 @@ const Header = ({ onNewTransaction, onNewGoal }) => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <Button
             onClick={onNewTransaction}
-            className="hidden sm:inline-flex bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+            size="sm"
+            className="inline-flex min-w-0 bg-gradient-to-r from-emerald-500 to-teal-500 px-2.5 text-white shadow-lg transition-all duration-300 hover:from-emerald-600 hover:to-teal-600 hover:shadow-xl min-[400px]:px-3.5"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Transação
+            <Plus className="h-4 w-4 min-[400px]:mr-2" />
+            <span className="hidden min-[400px]:inline">Transação</span>
           </Button>
 
           <Link to="/settings">

@@ -15,9 +15,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/providers/AuthProvider";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 
 const GoalForm = ({ onSubmit, onClose }) => {
   const { user, users } = useAuth();
+  useBodyScrollLock(true);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -44,7 +46,7 @@ const GoalForm = ({ onSubmit, onClose }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-3 backdrop-blur-sm sm:p-4"
       onClick={onClose}
     >
       <motion.div
@@ -52,9 +54,9 @@ const GoalForm = ({ onSubmit, onClose }) => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md"
+        className="mx-auto my-3 w-full max-w-md sm:my-6"
       >
-        <Card className="glass-effect p-6 rounded-2xl">
+        <Card className="glass-effect max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl p-5 sm:p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-foreground flex items-center">
               <Target className="w-6 h-6 mr-2 text-primary" />
