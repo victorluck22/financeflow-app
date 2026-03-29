@@ -36,9 +36,22 @@ rsync -a --delete "${SOURCE_ROOT}/dist/" "${APP_RELEASE}/"
 
 ln -sfn "${APP_RELEASE}" "${CURRENT_LINK}"
 
-mapfile -t OLD_RELEASES < <(ls -1dt "${DEPLOY_PATH}/releases"/* 2>/dev/null | tail -n +$((RELEASES_TO_KEEP + 1)))
-for OLD_RELEASE in "${OLD_RELEASES[@]:-}"; do
-  rm -rf "${OLD_RELEASE}"
-done
+# Only rotate directories that look like release IDs (YYYYMMDDHHMMSS-abcdef0).
+mapfile -t RELEASE_DIRS < <(
+  find "${DEPLOY_PATH}/releases" -mindepth 1 -maxdepth 1 -type d -printf "%f\n" \
+    | grep -E '^[0-9]{14}-[0-9a-f]{7}$' \
+    | sort -r
+)
+
+if (( ${#RELEASE_DIRS[@]} > RELEASES_TO_KEEP )); then
+  for RELEASE_NAME in "${RELEASE_DIRS[@]:RELEASES_TO_KEEP}"; do
+    OLD_RELEASE="${DEPLOY_PATH}/releases/${RELEASE_NAME}"
+    if rm -rf "${OLD_RELEASE}"; then
+      echo "Removed old release: ${OLD_RELEASE}"
+    else
+      echo "Warning: failed to remove old release (continuing): ${OLD_RELEASE}"
+    fi
+  done
+fi
 
 echo "Frontend deployment complete: ${RELEASE_ID}"
