@@ -1,0 +1,147 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Frontend Quality Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Component Tests
+        run: npm run test:component
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    name: Deploy Frontend to CloudPanel
+    needs:
+      - quality
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Validate Required Secrets
+        env:
+          PROD_SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
+          PROD_SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
+          PROD_SSH_USER: ${{ secrets.PROD_SSH_USER }}
+          PROD_SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          PROD_SSH_KNOWN_HOSTS: ${{ secrets.PROD_SSH_KNOWN_HOSTS }}
+          PROD_APP_DEPLOY_PATH: ${{ secrets.PROD_APP_DEPLOY_PATH }}
+          PROD_APP_DOCROOT: ${{ secrets.PROD_APP_DOCROOT }}
+          PROD_APP_URL: ${{ secrets.PROD_APP_URL }}
+          PROD_API_URL: ${{ secrets.PROD_API_URL }}
+        run: |
+          set -euo pipefail
+          REQUIRED=(
+            PROD_SSH_HOST
+            PROD_SSH_PORT
+            PROD_SSH_USER
+            PROD_SSH_PRIVATE_KEY
+            PROD_SSH_KNOWN_HOSTS
+            PROD_APP_DEPLOY_PATH
+            PROD_APP_DOCROOT
+            PROD_APP_URL
+            PROD_API_URL
+          )
+          for KEY in "${REQUIRED[@]}"; do
+            if [[ -z "${!KEY:-}" ]]; then
+              echo "Missing required secret: ${KEY}"
+              exit 1
+            fi
+          done
+
+      - name: Setup SSH
+        env:
+          PROD_SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          PROD_SSH_KNOWN_HOSTS: ${{ secrets.PROD_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf "%s\n" "$PROD_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          printf "%s\n" "$PROD_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Build Frontend for Production
+        env:
+          VITE_API_URL: ${{ secrets.PROD_API_URL }}
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run test:component
+          npm run build
+
+      - name: Build Release Metadata
+        id: meta
+        run: echo "release_id=$(date +%Y%m%d%H%M%S)-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Release Source
+        env:
+          PROD_SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
+          PROD_SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
+          PROD_SSH_USER: ${{ secrets.PROD_SSH_USER }}
+          PROD_APP_DEPLOY_PATH: ${{ secrets.PROD_APP_DEPLOY_PATH }}
+          RELEASE_ID: ${{ steps.meta.outputs.release_id }}
+        run: |
+          set -euo pipefail
+          TARGET="${PROD_SSH_USER}@${PROD_SSH_HOST}"
+          REMOTE_RELEASE="${PROD_APP_DEPLOY_PATH}/releases/${RELEASE_ID}/source"
+          ssh -p "$PROD_SSH_PORT" "$TARGET" "mkdir -p '$REMOTE_RELEASE'"
+          rsync -az --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            ./ "$TARGET:$REMOTE_RELEASE/"
+
+      - name: Run Frontend Deploy Script
+        env:
+          PROD_SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
+          PROD_SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
+          PROD_SSH_USER: ${{ secrets.PROD_SSH_USER }}
+          PROD_APP_DEPLOY_PATH: ${{ secrets.PROD_APP_DEPLOY_PATH }}
+          PROD_APP_DOCROOT: ${{ secrets.PROD_APP_DOCROOT }}
+          RELEASE_ID: ${{ steps.meta.outputs.release_id }}
+        run: |
+          set -euo pipefail
+          TARGET="${PROD_SSH_USER}@${PROD_SSH_HOST}"
+          ssh -p "$PROD_SSH_PORT" "$TARGET" \
+            "bash '${PROD_APP_DEPLOY_PATH}/releases/${RELEASE_ID}/source/scripts/deploy/frontend.sh' '${PROD_APP_DEPLOY_PATH}' '${PROD_APP_DOCROOT}' '${RELEASE_ID}'"
+
+      - name: Post-Deploy Health Check
+        env:
+          PROD_APP_URL: ${{ secrets.PROD_APP_URL }}
+        run: |
+          set -euo pipefail
+          curl -fsSL "${PROD_APP_URL}" > /dev/null
