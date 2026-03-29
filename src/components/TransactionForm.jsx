@@ -597,7 +597,7 @@ const TransactionForm = ({ onSubmit, onClose, initialTransaction = null }) => {
         onClick={(e) => e.stopPropagation()}
         className="mx-auto my-3 w-full max-w-md sm:my-6"
       >
-        <Card className="glass-effect max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl p-5 sm:p-6">
+        <Card className="glass-effect max-h-[calc(100dvh-5rem)] overflow-x-hidden overflow-y-auto rounded-2xl p-5 sm:p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-foreground flex items-center">
               <DollarSign className="w-6 h-6 mr-2 text-emerald-400" />
