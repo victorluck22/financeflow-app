@@ -31,7 +31,8 @@ describe("Dialog mobile behavior", () => {
     expect(document.body.style.overflow).toBe("hidden");
 
     const content = screen.getByRole("dialog");
-    expect(content).toHaveClass("max-h-[calc(100dvh-2rem)]");
+    expect(content).toHaveClass("max-h-[90dvh]");
+    expect(content).toHaveClass("overflow-x-hidden");
     expect(content).toHaveClass("overflow-y-auto");
     expect(content).toHaveClass("overscroll-contain");
   });

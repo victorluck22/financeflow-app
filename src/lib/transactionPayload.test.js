@@ -1,5 +1,4 @@
-import test from "node:test";
-import assert from "node:assert/strict";
+import { test, expect } from "vitest";
 import { buildTransactionPayload } from "./transactionPayload.js";
 
 test("buildTransactionPayload keeps income payload without category", () => {
@@ -14,11 +13,11 @@ test("buildTransactionPayload keeps income payload without category", () => {
     description: "Freela",
   });
 
-  assert.equal(payload.transaction_type, "income");
-  assert.equal(payload.category_id, null);
-  assert.equal(payload.amount, 150.75);
-  assert.equal(payload.payment_method_id, 3);
-  assert.equal(payload.currency_id, 2);
+  expect(payload.transaction_type).toBe("income");
+  expect(payload.category_id).toBeNull();
+  expect(payload.amount).toBe(150.75);
+  expect(payload.payment_method_id).toBe(3);
+  expect(payload.currency_id).toBe(2);
 });
 
 test("buildTransactionPayload keeps expense payload with category", () => {
@@ -33,11 +32,11 @@ test("buildTransactionPayload keeps expense payload with category", () => {
     description: "Mercado",
   });
 
-  assert.equal(payload.transaction_type, "expense");
-  assert.equal(payload.category_id, 7);
-  assert.equal(payload.payment_card_id, null);
-  assert.equal(payload.payment_method_id, 2);
-  assert.equal(payload.currency_id, 1);
+  expect(payload.transaction_type).toBe("expense");
+  expect(payload.category_id).toBe(7);
+  expect(payload.payment_card_id).toBeNull();
+  expect(payload.payment_method_id).toBe(2);
+  expect(payload.currency_id).toBe(1);
 });
 
 test("buildTransactionPayload includes owner_user_id when responsible is selected", () => {
@@ -52,5 +51,5 @@ test("buildTransactionPayload includes owner_user_id when responsible is selecte
     userId: "12",
   });
 
-  assert.equal(payload.owner_user_id, 12);
+  expect(payload.owner_user_id).toBe(12);
 });

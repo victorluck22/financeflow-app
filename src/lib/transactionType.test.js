@@ -1,5 +1,4 @@
-import test from "node:test";
-import assert from "node:assert/strict";
+import { test, expect } from "vitest";
 import {
   normalizeTransactionType,
   toApiTransactionType,
@@ -7,21 +6,18 @@ import {
 } from "./transactionType.js";
 
 test("normalizeTransactionType maps aliases to canonical values", () => {
-  assert.equal(normalizeTransactionType("receita"), TRANSACTION_TYPE.income);
-  assert.equal(normalizeTransactionType("despesa"), TRANSACTION_TYPE.expense);
-  assert.equal(normalizeTransactionType("income"), TRANSACTION_TYPE.income);
-  assert.equal(normalizeTransactionType("expense"), TRANSACTION_TYPE.expense);
+  expect(normalizeTransactionType("receita")).toBe(TRANSACTION_TYPE.income);
+  expect(normalizeTransactionType("despesa")).toBe(TRANSACTION_TYPE.expense);
+  expect(normalizeTransactionType("income")).toBe(TRANSACTION_TYPE.income);
+  expect(normalizeTransactionType("expense")).toBe(TRANSACTION_TYPE.expense);
 });
 
 test("normalizeTransactionType falls back to expense for unknown values", () => {
-  assert.equal(
-    normalizeTransactionType("unexpected"),
-    TRANSACTION_TYPE.expense,
-  );
-  assert.equal(normalizeTransactionType(undefined), TRANSACTION_TYPE.expense);
+  expect(normalizeTransactionType("unexpected")).toBe(TRANSACTION_TYPE.expense);
+  expect(normalizeTransactionType(undefined)).toBe(TRANSACTION_TYPE.expense);
 });
 
 test("toApiTransactionType always returns canonical backend value", () => {
-  assert.equal(toApiTransactionType("receita"), "income");
-  assert.equal(toApiTransactionType("despesa"), "expense");
+  expect(toApiTransactionType("receita")).toBe("income");
+  expect(toApiTransactionType("despesa")).toBe("expense");
 });

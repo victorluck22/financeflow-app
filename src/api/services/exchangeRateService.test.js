@@ -1,5 +1,4 @@
-import test from "node:test";
-import assert from "node:assert/strict";
+import { test, expect } from "vitest";
 
 import { mapRefreshResultFromApi } from "../../lib/exchangeRateMapper.js";
 
@@ -28,18 +27,18 @@ test("mapRefreshResultFromApi converts snake_case payload to camelCase", () => {
     ],
   });
 
-  assert.equal(mapped.baseCurrency, "BRL");
-  assert.equal(mapped.sourceProvider, "frankfurter");
-  assert.equal(mapped.summary.updated, 1);
-  assert.equal(mapped.results[0].currencyCode, "USD");
-  assert.equal(mapped.results[0].previousRate, "0.200000");
-  assert.equal(mapped.results[0].newRate, "0.210000");
+  expect(mapped.baseCurrency).toBe("BRL");
+  expect(mapped.sourceProvider).toBe("frankfurter");
+  expect(mapped.summary.updated).toBe(1);
+  expect(mapped.results[0].currencyCode).toBe("USD");
+  expect(mapped.results[0].previousRate).toBe("0.200000");
+  expect(mapped.results[0].newRate).toBe("0.210000");
 });
 
 test("mapRefreshResultFromApi returns safe defaults for empty payload", () => {
   const mapped = mapRefreshResultFromApi();
 
-  assert.equal(mapped.baseCurrency, "");
-  assert.equal(mapped.summary.total, 0);
-  assert.deepEqual(mapped.results, []);
+  expect(mapped.baseCurrency).toBe("");
+  expect(mapped.summary.total).toBe(0);
+  expect(mapped.results).toEqual([]);
 });

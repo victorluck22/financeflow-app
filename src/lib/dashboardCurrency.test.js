@@ -1,5 +1,4 @@
-import test from "node:test";
-import assert from "node:assert/strict";
+import { test, expect } from "vitest";
 import {
   filterTransactionsByCurrency,
   formatDashboardAmount,
@@ -9,13 +8,13 @@ import {
 } from "./dashboardCurrency.js";
 
 test("resolveInitialCurrencyFilter keeps user default currency", () => {
-  assert.equal(resolveInitialCurrencyFilter("5"), "5");
-  assert.equal(resolveInitialCurrencyFilter(3), "3");
+  expect(resolveInitialCurrencyFilter("5")).toBe("5");
+  expect(resolveInitialCurrencyFilter(3)).toBe("3");
 });
 
 test("resolveInitialCurrencyFilter falls back to all", () => {
-  assert.equal(resolveInitialCurrencyFilter(""), "all");
-  assert.equal(resolveInitialCurrencyFilter(null), "all");
+  expect(resolveInitialCurrencyFilter("")).toBe("all");
+  expect(resolveInitialCurrencyFilter(null)).toBe("all");
 });
 
 test("filterTransactionsByCurrency returns all when all selected", () => {
@@ -24,7 +23,7 @@ test("filterTransactionsByCurrency returns all when all selected", () => {
     { id: 2, currency_id: 2 },
   ];
 
-  assert.equal(filterTransactionsByCurrency(transactions, "all").length, 2);
+  expect(filterTransactionsByCurrency(transactions, "all").length).toBe(2);
 });
 
 test("filterTransactionsByCurrency keeps only selected currency", () => {
@@ -36,10 +35,7 @@ test("filterTransactionsByCurrency keeps only selected currency", () => {
 
   const filtered = filterTransactionsByCurrency(transactions, "2");
 
-  assert.deepEqual(
-    filtered.map((item) => item.id),
-    [2, 3],
-  );
+  expect(filtered.map((item) => item.id)).toEqual([2, 3]);
 });
 
 test("resolveDashboardCurrency returns selected currency", () => {
@@ -48,8 +44,8 @@ test("resolveDashboardCurrency returns selected currency", () => {
     { id: 2, code: "USD", symbol: "$" },
   ];
 
-  assert.deepEqual(resolveDashboardCurrency(currencies, "2"), currencies[1]);
-  assert.equal(resolveDashboardCurrency(currencies, "all"), null);
+  expect(resolveDashboardCurrency(currencies, "2")).toEqual(currencies[1]);
+  expect(resolveDashboardCurrency(currencies, "all")).toBeNull();
 });
 
 test("getDashboardCurrencySymbol returns selected symbol or fallback", () => {
@@ -58,14 +54,14 @@ test("getDashboardCurrencySymbol returns selected symbol or fallback", () => {
     { id: 2, code: "EUR", symbol: "EUR" },
   ];
 
-  assert.equal(getDashboardCurrencySymbol(currencies, "2"), "EUR");
-  assert.equal(getDashboardCurrencySymbol(currencies, "all"), "R$");
-  assert.equal(getDashboardCurrencySymbol([], "2", "$"), "$");
+  expect(getDashboardCurrencySymbol(currencies, "2")).toBe("EUR");
+  expect(getDashboardCurrencySymbol(currencies, "all")).toBe("R$");
+  expect(getDashboardCurrencySymbol([], "2", "$")).toBe("$");
 });
 
 test("formatDashboardAmount prints selected symbol and two decimals", () => {
   const currencies = [{ id: 3, code: "USD", symbol: "$" }];
 
-  assert.equal(formatDashboardAmount(15.5, currencies, "3"), "$ 15.50");
-  assert.equal(formatDashboardAmount(undefined, currencies, "all"), "R$ 0.00");
+  expect(formatDashboardAmount(15.5, currencies, "3")).toBe("$ 15.50");
+  expect(formatDashboardAmount(undefined, currencies, "all")).toBe("R$ 0.00");
 });
