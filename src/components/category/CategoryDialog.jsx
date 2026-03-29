@@ -5,7 +5,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import CategoryForm from "./CategoryForm";
 import { createCategory, updateCategory } from "@/api/services/categoryService";
@@ -17,7 +16,7 @@ const CategoryDialog = ({ open, onOpenChange, category = null, onSuccess }) => {
 
   useEffect(() => {
     if (category) {
-      setFormData({ name: category.name, icon: category.icon });
+      setFormData({ name: category.name, icon: category.icon || "" });
     } else {
       setFormData({ name: "", icon: "" });
     }
@@ -27,6 +26,13 @@ const CategoryDialog = ({ open, onOpenChange, category = null, onSuccess }) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleIconSelect = (icon) => {
+    setFormData((prev) => ({
+      ...prev,
+      icon,
     }));
   };
 
@@ -40,6 +46,16 @@ const CategoryDialog = ({ open, onOpenChange, category = null, onSuccess }) => {
           title: "Erro de cadastro",
           variant: "destructive",
           description: "O campo categoria é obrigatório!",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.icon) {
+        toast({
+          title: "Erro de cadastro",
+          variant: "destructive",
+          description: "Selecione um ícone para a categoria.",
         });
         setIsSubmitting(false);
         return;
@@ -86,6 +102,7 @@ const CategoryDialog = ({ open, onOpenChange, category = null, onSuccess }) => {
           category={formData}
           isSubmitting={isSubmitting}
           onChange={handleChange}
+          onIconSelect={handleIconSelect}
           onSubmit={handleSubmit}
         />
       </DialogContent>

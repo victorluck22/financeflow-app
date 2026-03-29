@@ -25,6 +25,18 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 
+const LOYALTY_PROGRAM_OPTIONS = [
+  "",
+  "Livelo",
+  "Esfera",
+  "Iupp",
+  "Inter Loop",
+  "Smiles",
+  "LATAM Pass",
+  "TudoAzul",
+  "Outro",
+];
+
 const CardForm = ({ card, onSubmit, isLoading, paymentMethods = [] }) => {
   const [name, setName] = useState(card?.name || "");
   const [cardholder, setCardholder] = useState(card?.cardholder || "");
@@ -37,8 +49,19 @@ const CardForm = ({ card, onSubmit, isLoading, paymentMethods = [] }) => {
   const [cardLastDigits, setCardLastDigits] = useState(
     card?.cardLastDigits || "",
   );
+  const initialLoyaltyProgram = card?.loyaltyProgram || "";
+  const isKnownLoyaltyProgram = LOYALTY_PROGRAM_OPTIONS.includes(
+    initialLoyaltyProgram,
+  );
   const [loyaltyProgram, setLoyaltyProgram] = useState(
-    card?.loyaltyProgram || "",
+    isKnownLoyaltyProgram
+      ? initialLoyaltyProgram
+      : initialLoyaltyProgram
+        ? "Outro"
+        : "",
+  );
+  const [customLoyaltyProgram, setCustomLoyaltyProgram] = useState(
+    isKnownLoyaltyProgram ? "" : initialLoyaltyProgram,
   );
   const [loyaltyPoints, setLoyaltyPoints] = useState(card?.loyaltyPoints || 0);
 
@@ -54,7 +77,14 @@ const CardForm = ({ card, onSubmit, isLoading, paymentMethods = [] }) => {
       setLimit(card.limit || 0);
       setClosingDay(card.closingDay || "");
       setCardLastDigits(card.cardLastDigits || "");
-      setLoyaltyProgram(card.loyaltyProgram || "");
+      const incomingLoyaltyProgram = card.loyaltyProgram || "";
+      if (LOYALTY_PROGRAM_OPTIONS.includes(incomingLoyaltyProgram)) {
+        setLoyaltyProgram(incomingLoyaltyProgram);
+        setCustomLoyaltyProgram("");
+      } else {
+        setLoyaltyProgram(incomingLoyaltyProgram ? "Outro" : "");
+        setCustomLoyaltyProgram(incomingLoyaltyProgram);
+      }
       setLoyaltyPoints(card.loyaltyPoints || 0);
     } else {
       // Resetar para criar novo cartão
@@ -66,6 +96,7 @@ const CardForm = ({ card, onSubmit, isLoading, paymentMethods = [] }) => {
       setClosingDay("");
       setCardLastDigits("");
       setLoyaltyProgram("");
+      setCustomLoyaltyProgram("");
       setLoyaltyPoints(0);
     }
   }, [card]);
@@ -101,6 +132,17 @@ const CardForm = ({ card, onSubmit, isLoading, paymentMethods = [] }) => {
       alert("Por favor, preencha a data de validade");
       return;
     }
+
+    const normalizedLoyaltyProgram =
+      loyaltyProgram === "Outro"
+        ? customLoyaltyProgram.trim()
+        : loyaltyProgram.trim();
+
+    if (loyaltyProgram === "Outro" && !normalizedLoyaltyProgram) {
+      alert("Por favor, informe o programa de fidelidade");
+      return;
+    }
+
     onSubmit({
       id: card?.id,
       name,
@@ -110,7 +152,7 @@ const CardForm = ({ card, onSubmit, isLoading, paymentMethods = [] }) => {
       limit: parseFloat(limit) || 0,
       closingDay: parseInt(closingDay, 10) || 1,
       cardLastDigits,
-      loyaltyProgram,
+      loyaltyProgram: normalizedLoyaltyProgram,
       loyaltyPoints: parseFloat(loyaltyPoints) || 0,
     });
   };
@@ -222,13 +264,20 @@ const CardForm = ({ card, onSubmit, isLoading, paymentMethods = [] }) => {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="loyaltyProgram">Programa de Fidelidade</Label>
-          <Input
+          <select
             id="loyaltyProgram"
             value={loyaltyProgram}
             onChange={(e) => setLoyaltyProgram(e.target.value)}
-            placeholder="Ex: Livelo, Esfera"
+            className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isLoading}
-          />
+          >
+            <option value="">Sem programa</option>
+            {LOYALTY_PROGRAM_OPTIONS.filter(Boolean).map((programOption) => (
+              <option key={programOption} value={programOption}>
+                {programOption}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="loyaltyPoints">Pontos Acumulados</Label>
@@ -243,6 +292,19 @@ const CardForm = ({ card, onSubmit, isLoading, paymentMethods = [] }) => {
           />
         </div>
       </div>
+      {loyaltyProgram === "Outro" ? (
+        <div className="space-y-2">
+          <Label htmlFor="customLoyaltyProgram">Programa personalizado</Label>
+          <Input
+            id="customLoyaltyProgram"
+            value={customLoyaltyProgram}
+            onChange={(e) => setCustomLoyaltyProgram(e.target.value)}
+            placeholder="Digite o programa"
+            disabled={isLoading}
+            required
+          />
+        </div>
+      ) : null}
       <DialogFooter>
         <DialogClose asChild>
           <Button type="button" variant="outline" disabled={isLoading}>

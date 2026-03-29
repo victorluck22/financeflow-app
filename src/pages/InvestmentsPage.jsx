@@ -25,17 +25,41 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 
+const INVESTMENT_TYPE_OPTIONS = [
+  "Renda Fixa",
+  "Renda Variavel",
+  "Fundo Imobiliario",
+  "Criptomoeda",
+  "Tesouro Direto",
+  "Previdencia",
+  "Outro",
+];
+
 const InvestmentForm = ({ investment, onSubmit }) => {
   const [name, setName] = useState(investment?.name || "");
-  const [type, setType] = useState(investment?.type || "");
+  const initialType = investment?.type || "";
+  const isKnownType = INVESTMENT_TYPE_OPTIONS.includes(initialType);
+  const [type, setType] = useState(
+    isKnownType ? initialType : initialType ? "Outro" : "",
+  );
+  const [customType, setCustomType] = useState(isKnownType ? "" : initialType);
   const [amount, setAmount] = useState(investment?.amount || "");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const normalizedType =
+      type === "Outro" ? customType.trim() : (type || "").trim();
+
+    if (!normalizedType) {
+      alert("Por favor, selecione o tipo do investimento");
+      return;
+    }
+
     onSubmit({
       id: investment?.id,
       name,
-      type,
+      type: normalizedType,
       amount: parseFloat(amount) || 0,
     });
   };
@@ -54,14 +78,33 @@ const InvestmentForm = ({ investment, onSubmit }) => {
       </div>
       <div className="space-y-2">
         <Label htmlFor="type">Tipo</Label>
-        <Input
+        <select
           id="type"
           value={type}
           onChange={(e) => setType(e.target.value)}
-          placeholder="Ex: Renda Variável"
+          className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
           required
-        />
+        >
+          <option value="">Selecione o tipo...</option>
+          {INVESTMENT_TYPE_OPTIONS.map((typeOption) => (
+            <option key={typeOption} value={typeOption}>
+              {typeOption}
+            </option>
+          ))}
+        </select>
       </div>
+      {type === "Outro" ? (
+        <div className="space-y-2">
+          <Label htmlFor="customType">Tipo personalizado</Label>
+          <Input
+            id="customType"
+            value={customType}
+            onChange={(e) => setCustomType(e.target.value)}
+            placeholder="Descreva o tipo"
+            required
+          />
+        </div>
+      ) : null}
       <div className="space-y-2">
         <Label htmlFor="amount">Valor Investido (R$)</Label>
         <CurrencyInput
