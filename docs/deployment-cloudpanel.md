@@ -39,6 +39,34 @@ Execute uma vez no servidor, como usuário do site ou como root:
 bash scripts/deploy/init-paths.sh /home/lucksystems-app-financeflow
 ```
 
+## Checklist antes do rerun
+
+Antes de rerodar a pipeline, estes itens precisam estar verdadeiros no servidor:
+
+1. O usuário `lucksystems-app-financeflow` aceita SSH com a chave usada no GitHub Actions.
+2. O diretório `/home/lucksystems-app-financeflow/releases` existe e pertence ao usuário do site.
+3. O caminho `/home/lucksystems-app-financeflow/htdocs/app.financeflow.lucksystems.com.br` já foi convertido de diretório real do CloudPanel para symlink de release.
+
+Teste rápido de SSH a partir da sua máquina:
+
+```powershell
+ssh -i "$env:USERPROFILE\.ssh\financeflow_actions" -o BatchMode=yes lucksystems-app-financeflow@168.231.97.217 "echo APP_SSH_OK"
+```
+
+Hoje esse acesso ainda precisa ser corrigido no VPS, porque o usuário do site não está aceitando a chave.
+
+## Converter o docroot do CloudPanel em symlink
+
+Se o CloudPanel criou `htdocs/app.financeflow.lucksystems.com.br` como diretório normal, converta uma vez antes do primeiro deploy:
+
+```bash
+mkdir -p /home/lucksystems-app-financeflow/releases/bootstrap/app
+rsync -a /home/lucksystems-app-financeflow/htdocs/app.financeflow.lucksystems.com.br/ /home/lucksystems-app-financeflow/releases/bootstrap/app/
+mv /home/lucksystems-app-financeflow/htdocs/app.financeflow.lucksystems.com.br /home/lucksystems-app-financeflow/htdocs/app.financeflow.lucksystems.com.br.bak
+ln -s /home/lucksystems-app-financeflow/releases/bootstrap/app /home/lucksystems-app-financeflow/htdocs/app.financeflow.lucksystems.com.br
+chown -h lucksystems-app-financeflow:lucksystems-app-financeflow /home/lucksystems-app-financeflow/htdocs/app.financeflow.lucksystems.com.br
+```
+
 ## Workflow incluído
 
 - `.github/workflows/deploy-frontend.yml`

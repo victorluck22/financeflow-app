@@ -14,8 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { createCategory } from "../../api/services/CategoryService";
-
 const CategoryForm = ({ category, isSubmitting, onChange, onSubmit }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-4">

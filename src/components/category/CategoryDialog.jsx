@@ -8,7 +8,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import CategoryForm from "./CategoryForm";
-import { createCategory, updateCategory } from "@/api/services/CategoryService";
+import { createCategory, updateCategory } from "@/api/services/categoryService";
 
 const CategoryDialog = ({ open, onOpenChange, category = null, onSuccess }) => {
   const { toast } = useToast();

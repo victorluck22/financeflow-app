@@ -19,6 +19,11 @@ SOURCE_ROOT="${RELEASE_ROOT}/source"
 APP_RELEASE="${RELEASE_ROOT}/app"
 CURRENT_LINK="${CLOUDPANEL_DOCROOT}"
 
+if [[ -e "${CURRENT_LINK}" && ! -L "${CURRENT_LINK}" ]]; then
+  echo "CloudPanel docroot must be a symlink before deploy: ${CURRENT_LINK}"
+  exit 1
+fi
+
 if [[ ! -d "${SOURCE_ROOT}/dist" ]]; then
   echo "Expected built frontend not found: ${SOURCE_ROOT}/dist"
   exit 1

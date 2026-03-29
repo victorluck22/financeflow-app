@@ -11,7 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 import {
   getAllCategories,
   deleteCategory,
-} from "../api/services/CategoryService";
+} from "../api/services/categoryService";
 import ConfirmDialog from "@/components/dialogs/ConfirmDialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
