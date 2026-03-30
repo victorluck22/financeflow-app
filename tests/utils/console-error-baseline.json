@@ -1,0 +1,12 @@
+{
+  "createdAt": "2026-03-29",
+  "notes": [
+    "Baseline introduced for expected console.error patterns during frontend tests.",
+    "Current suites still contain expected noise from TransactionForm legacy mocks."
+  ],
+  "expectedPatterns": [
+    "validateDOMNesting(...): <span> cannot appear as a child of <option>",
+    "Erro ao salvar transação:",
+    "Erro ao carregar transação para edição:"
+  ]
+}

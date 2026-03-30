@@ -1,17 +1,4 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-
-const { mockHttpClient } = vi.hoisted(() => ({
-  mockHttpClient: {
-    post: vi.fn(),
-    patch: vi.fn(),
-    get: vi.fn(),
-  },
-}));
-
-vi.mock("../httpClient", () => ({
-  default: mockHttpClient,
-}));
-
 import {
   preRegisterRequest,
   setupPasswordRequest,
@@ -26,6 +13,18 @@ import {
   acceptUserShareRequest,
   revokeUserShareRequest,
 } from "./authService";
+
+const { mockHttpClient } = vi.hoisted(() => ({
+  mockHttpClient: {
+    post: vi.fn(),
+    patch: vi.fn(),
+    get: vi.fn(),
+  },
+}));
+
+vi.mock("../httpClient", () => ({
+  default: mockHttpClient,
+}));
 
 describe("authService", () => {
   beforeEach(() => {

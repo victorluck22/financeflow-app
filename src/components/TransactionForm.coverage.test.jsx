@@ -1,6 +1,13 @@
 import React from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  MockSelect,
+  MockSelectContent,
+  MockSelectItem,
+  MockSelectTrigger,
+  MockSelectValue,
+} from "../../tests/utils/mocks/select";
 
 import TransactionForm from "@/components/TransactionForm";
 
@@ -98,21 +105,11 @@ vi.mock("@/components/ui/label", () => ({
 }));
 
 vi.mock("@/components/ui/select", () => ({
-  Select: ({ value = "", onValueChange, children, disabled }) => (
-    <select
-      value={value}
-      onChange={(e) => onValueChange?.(e.target.value)}
-      disabled={disabled}
-    >
-      {children}
-    </select>
-  ),
-  SelectContent: ({ children }) => <>{children}</>,
-  SelectItem: ({ children, value }) => (
-    <option value={value}>{children}</option>
-  ),
-  SelectTrigger: ({ children }) => <>{children}</>,
-  SelectValue: ({ placeholder }) => <option value="">{placeholder}</option>,
+  Select: MockSelect,
+  SelectContent: MockSelectContent,
+  SelectItem: MockSelectItem,
+  SelectTrigger: MockSelectTrigger,
+  SelectValue: MockSelectValue,
 }));
 
 vi.mock("@/components/ui/textarea", () => ({

@@ -46,6 +46,7 @@ Antes de rerodar a pipeline, estes itens precisam estar verdadeiros no servidor:
 1. O usuário `lucksystems-app-financeflow` aceita SSH com a chave usada no GitHub Actions.
 2. O diretório `/home/lucksystems-app-financeflow/releases` existe e pertence ao usuário do site.
 3. O caminho `/home/lucksystems-app-financeflow/htdocs/app.financeflow.lucksystems.com.br` já foi convertido de diretório real do CloudPanel para symlink de release.
+4. O checklist de validacao mobile em `docs/manual-mobile-validation-checklist.md` foi executado e aprovado para iOS/Android (retrato/paisagem).
 
 Teste rápido de SSH a partir da sua máquina:
 
